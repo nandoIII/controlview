@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+        </title>
+        <link rel="stylesheet" href="controlviewtheme.min.css" />
+        <link rel="stylesheet" href="jquery.mobile-1.1.0.min.css" />
+        <link rel="stylesheet" href="my.css" />
+        <style type="text/css">
+        .ui-page {
+            background: #ffffff;
+        }
+        </style>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="jquery.mobile-1.1.0.min.js"></script>
+        <script type="text/javascript" src="my.min.js"></script>
+        <script type="text/javascript" src="js/cordova-1.8.1.min.js"></script>
+        <script type="text/javascript" src="js/photos.js"></script>
+        <script type="text/javascript" src="js/videos.js"></script>
+    </head>
+    <body>
+        <div data-role="page" data-theme="a" id="loginPage">
+            <div data-theme="a" data-role="header">
+                <h3>
+                    Control View
+                </h3>
+            </div>
+            <div data-role="content">
+            <center><img src='images/logo.png' /></center>
+                <form id="fomrLogin" action="#page" method="post">
+                    <div data-role="fieldcontain">
+                        <fieldset data-role="controlgroup">
+                            <label for="usuariotxt">
+                                Usuario
+                            </label>
+                            <input id="usuariotxt" placeholder="" value="" type="text" />
+                        </fieldset>
+                    </div>
+                    <div data-role="fieldcontain">
+                        <fieldset data-role="controlgroup">
+                            <label for="clavetxt">
+                                Clave
+                            </label>
+                            <input id="clavetxt" placeholder="" value="" type="password" />
+                        </fieldset>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">
+                            <input id="btnSumit" data-inline="true" data-theme="a" type="button"  value="Entrar"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div data-role="page" id="page2">
+            <div data-theme="a" data-role="header">
+                <h3>
+                    Control View
+                </h3>
+            </div>
+            <div data-role="content">
+                <center><img src='images/logo.png'/></center>
+                <ul data-role="listview" data-divider-theme="b" data-inset="true">
+                    <!-- <li data-role="list-divider" role="heading">
+                        Menu
+                    </li>
+                    <li data-theme="a">
+                        <a href="#page3" data-transition="slide">
+                            Nuevo Reporte
+                        </a>
+                    </li>
+                    <li data-theme="a">
+                        <a href="#page4" data-transition="slide" onclick='obtenerMiPosicion();'>
+                            Mi Posicion
+                        </a>
+                    </li>-->
+                </ul>
+            </div>
+        </div>
+        <div data-role="page" id="page3">
+            <div data-theme="a" data-role="header">
+                <a data-role="button" data-inline="true" data-rel="back" data-transition="fade" data-theme="a" href="#page4" data-icon="back" data-iconpos="left">
+                    Atras
+                </a>
+                <h3>
+                    Nuevo Reporte
+                </h3>
+            </div>
+            <div data-role="content">
+                <center><img src='images/logo.png' /></center>
+                <div data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <label for="descripciontxt">
+                            Descripcion
+                        </label>
+                        <textarea name="descripciontxt" id="descripciontxt" style='width:100%;'></textarea>
+                    </fieldset>
+                </div>
+                <a data-role="button" data-transition="pop" data-theme="a" onclick='onPhotosLoad();' data-icon="plus" data-iconpos="left">
+                    Tomar Foto
+                </a>
+                <a data-role="button" data-transition="pop" data-theme="a" onclick='captureVideo();' data-icon="plus" data-iconpos="left">
+                    Grabar Video
+                </a>
+                <a data-role="button" data-transition="pop" data-theme="a" onclick='registrarAccion();' data-icon="plus" data-iconpos="left">
+                    Registrar
+                </a>
+            </div>
+        </div>
+        <div data-role="page" id="page4">
+            <div data-theme="a" data-role="header">
+                <a data-role="button" data-inline="true" data-rel="back" data-transition="fade" href="#page2" data-icon="back" data-iconpos="left">
+                    Atras
+                </a>
+                <h3>
+                    Mi Posicion
+                </h3>
+            </div>
+            <div data-role="content" style="padding: 15px">
+                <div id="map_canvas" style="width: 288px; height: 400px"></div>
+            </div>
+        </div>
+        <div data-role="page" id="page5">
+            <div data-theme="a" data-role="header">
+                <a data-role="button" data-inline="true" data-rel="back" data-transition="fade" href="#page2" data-icon="back" data-iconpos="left">
+                    Atras
+                </a>
+                <h3>
+                    Control View
+                </h3>
+            </div>
+            <div data-role="content" style="padding: 15px">
+                <br /><br /><br /><br />
+                <p style="text-align: center;"><span id='mensajeTxt' style="font-size: x-large;"><b>Enviado Datos...</b></span></p>
+            </div>
+        </div>
+        <script>
+            var isTypeOf = 1; //1 foto , 2 video
+            var $base_url_login = 'http://www.dolmen.net.co/sid_v1/seguridad/ajax/login.php';
+            var isSessionActive = false;
+            window.id_obra = 0;
+            function registrarAccion(){
+                if(isTypeOf == 1){
+                    savePhoto();
+                }else{
+                    uploadMediaFile();
+                }
+            }
+
+            function setIdObra (argument) {
+                window.id_obra = argument;
+            }
+
+            function obtenerMiPosicion () {
+                getGeolocation();
+            }
+
+            function getGeolocation () {
+                // get the user's gps coordinates and display map
+                var options = {
+                    maximumAge : 3000,
+                    timeout : 5000,
+                    enableHighAccuracy : true
+                };
+                navigator.geolocation.getCurrentPosition(loadMap, geoError, options);
+            }
+
+            function loadMap(position) {
+                var latlng = new google.maps.LatLng(position.coords.latitude,
+                                                    position.coords.longitude);
+                var myOptions = {
+                    zoom      : 8,
+                    center    : latlng,
+                    mapTypeId : google.maps.MapTypeId.ROADMAP
+                };
+
+                var mapObj = document.getElementById("map_canvas");
+                var map    = new google.maps.Map(mapObj, myOptions);
+                var marker = new google.maps.Marker({
+                    position : latlng,
+                    map : map,
+                    title : "You " + $('#usuariotxt').val()
+                });
+            }
+
+            function geoError(error) {
+                alert('code: ' + error.code + '\n' + 'message: ' + error.message + '\n');
+            }
+
+            $(function(){
+
+                var fileref=document.createElement('script');
+                    fileref.setAttribute("type","text/javascript");
+                    fileref.setAttribute("src",
+                    "http://maps.googleapis.com/maps/api/js?sensor=true&callback=getGeolocation");
+                    document.getElementsByTagName("head")[0].appendChild(fileref);
+
+                $("#btnSumit").click(function(){
+
+                        if ($('#usuariotxt').val() == "") {
+                            alert('El campo usuario no debe estar vaci');
+                            $('#usuariotxt').focus();
+                            return;
+                        }
+
+                        if ($('#clavetxt').val() == "") {
+                            alert('El campo clave no debe estar vacio');
+                            $('#clavetxt').focus();
+                            return;
+                        }
+
+                        $.mobile.showPageLoadingMsg();
+                        $.post($base_url_login,(
+                                            {
+                                                usuario : $('#usuariotxt').val(),
+                                                pass   : $('#clavetxt').val(),
+                                                tipo    : 1
+                                            }
+                                         ),
+                                        function(result) {
+                                                if(1=1) {
+                                                    if(result.success === 'true'){
+                                                        $.mobile.hidePageLoadingMsg();
+                                                        $('#usuariotxt').val( $.trim( $('#usuariotxt').val() ) );
+                                                        isSessionActive = true;
+                                                        $.mobile.changePage("#page2",{transition : 'slide'});
+                                                        $('ul').find('li').remove();
+                                                        $('ul').append('<li data-role="list-divider" role="heading">Menu</li>');
+
+                                                        for (var i = 0; i < result.data.length; i++) {
+                                                            $('ul').append('<li id='+ result.data[i].id_obra +' data-theme="a"><a onclick="setIdObra(\''+ result.data[i].id_obra +'\')" href="#page3" data-transition="slide">'+ result.data[i].nombre +'</a></li>');
+                                                        }
+
+                                                        $('ul').append('<li data-theme="a"><a href="#page4" data-transition="slide" onclick="obtenerMiPosicion();">Mi Posicion</a></li>');
+                                                        $('ul').listview('refresh');
+                                                    }else{
+                                                        $.mobile.hidePageLoadingMsg();
+                                                        alert("Usuario y/o Clave Incorrectos");
+                                                    }
+                                                } else {
+                                                    $.mobile.hidePageLoadingMsg();
+                                                    alert(result);
+                                                }
+                                        },'json');
+                    });
+                });
+        </script>
+    </body>
+</html>
